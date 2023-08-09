@@ -1,8 +1,23 @@
 import os
 
-CUSTOM_MODEL_NAME = 'my_ssd_resnet50_640'
-PRETRAINED_MODEL_NAME = 'ssd_resnet50_v1_fpn_640x640_coco17_tpu-8'
-PRETRAINED_MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.tar.gz'
+# CUSTOM_MODEL_NAME = 'my_frcnn_resnet50_640'
+# PRETRAINED_MODEL_NAME = 'faster_rcnn_resnet50_v1_640x640_coco17_tpu-8'
+# PRETRAINED_MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/faster_rcnn_resnet50_v1_640x640_coco17_tpu-8.tar.gz'
+
+# CUSTOM_MODEL_NAME = 'my_ssd_resnet50_640'
+# PRETRAINED_MODEL_NAME = 'ssd_resnet50_v1_fpn_640x640_coco17_tpu-8'
+# PRETRAINED_MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.tar.gz'
+
+# CUSTOM_MODEL_NAME = 'my_frcnn_resnet101_640_10k'
+# PRETRAINED_MODEL_NAME = 'faster_rcnn_resnet101_v1_640x640_coco17_tpu-8'
+# PRETRAINED_MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/faster_rcnn_resnet101_v1_640x640_coco17_tpu-8.tar.gz'
+
+CUSTOM_MODEL_NAME = 'my_frcnn_resnet101_1024_10k'
+PRETRAINED_MODEL_NAME = 'faster_rcnn_resnet101_v1_1024x1024_coco17_tpu-8'
+PRETRAINED_MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/faster_rcnn_resnet101_v1_1024x1024_coco17_tpu-8.tar.gz'
+
+
+
 TF_RECORD_SCRIPT_NAME = 'generate_tfrecord.py'
 LABEL_MAP_NAME = 'label_map.pbtxt'
 
@@ -55,12 +70,18 @@ with open(files['LABELMAP'], 'w') as f:
 os.system(f"python {files['TF_RECORD_SCRIPT']} -x {os.path.join(paths['IMAGE_PATH'], 'train')} -l {files['LABELMAP']} -o {os.path.join(paths['ANNOTATION_PATH'], 'train.record')}")
 os.system(f"python {files['TF_RECORD_SCRIPT']} -x {os.path.join(paths['IMAGE_PATH'], 'test')} -l {files['LABELMAP']} -o {os.path.join(paths['ANNOTATION_PATH'], 'test.record')}")
 
+# if not os.path.exists(files['PIPELINE_CONFIG']):
+#     os.system(f"mv ./colab-tensor-req/pipeline.config {paths['CHECKPOINT_PATH']}")
+#     print('Moved config file into model dir')
 
 import tensorflow as tf
 from object_detection.utils import config_util
 from object_detection.protos import pipeline_pb2
 from google.protobuf import text_format
 tf.get_logger().setLevel('ERROR')
+
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 config = config_util.get_configs_from_pipeline_file(files['PIPELINE_CONFIG'])
 
@@ -69,8 +90,8 @@ with tf.io.gfile.GFile(files['PIPELINE_CONFIG'], "r") as f:
     proto_str = f.read()
     text_format.Merge(proto_str, pipeline_config)
 
-pipeline_config.model.ssd.num_classes = len(labels)
-pipeline_config.train_config.batch_size = 32
+pipeline_config.model.faster_rcnn.num_classes = len(labels)
+pipeline_config.train_config.batch_size = 4
 pipeline_config.train_config.fine_tune_checkpoint = os.path.join(paths['PRETRAINED_MODEL_PATH'], PRETRAINED_MODEL_NAME, 'checkpoint', 'ckpt-0')
 pipeline_config.train_config.fine_tune_checkpoint_type = "detection"
 pipeline_config.train_input_reader.label_map_path= files['LABELMAP']
@@ -85,6 +106,6 @@ with tf.io.gfile.GFile(files['PIPELINE_CONFIG'], "wb") as f:
 
 TRAINING_SCRIPT = os.path.join(paths['APIMODEL_PATH'], 'research', 'object_detection', 'model_main_tf2.py')
 
-command = "python {} --model_dir={} --pipeline_config_path={} --num_train_steps=2000".format(TRAINING_SCRIPT, paths['CHECKPOINT_PATH'],files['PIPELINE_CONFIG'])
+command = "python {} --model_dir={} --pipeline_config_path={} --num_train_steps=5000".format(TRAINING_SCRIPT, paths['CHECKPOINT_PATH'],files['PIPELINE_CONFIG'])
 
 os.system(f"{command}")

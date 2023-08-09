@@ -39,5 +39,7 @@ if os.name=='posix':
     os.system("apt-get install protobuf-compiler -y")
     os.system("cd Tensorflow/models/research && protoc object_detection/protos/*.proto --python_out=. && cp object_detection/packages/tf2/setup.py . && python -m pip install .")
 
-os.system('apt-get update && apt-get install ffmpeg libsm6 libxext6 python3 python-is-python3 python3-pip -y')
-os.system('apt install libcudnn8=8.6.0.* && libcudnn8-dev=8.6.0.*')
+os.system('apt-get update && apt-get install ffmpeg libsm6 libxext6  -y')
+
+if not os.path.exists('./colab-tensor-req'):
+    os.sytem('git clone https://github.com/Kaya2134/colab-tensor-req')

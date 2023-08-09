@@ -5,9 +5,11 @@ from object_detection.utils import visualization_utils as viz_utils
 from object_detection.builders import model_builder
 from object_detection.utils import config_util
 
-CUSTOM_MODEL_NAME = 'my_frcnn_resnet101_640'
-PRETRAINED_MODEL_NAME = 'ssd_resnet50_v1_fpn_640x640_coco17_tpu-8'
-PRETRAINED_MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.tar.gz'
+CUSTOM_MODEL_NAME = 'my_frcnn_resnet101_1024_10k'
+PRETRAINED_MODEL_NAME = 'faster_rcnn_resnet101_v1_1024x1024_coco17_tpu-8'
+PRETRAINED_MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/faster_rcnn_resnet101_v1_1024x1024_coco17_tpu-8.tar.gz'
+
+
 TF_RECORD_SCRIPT_NAME = 'generate_tfrecord.py'
 LABEL_MAP_NAME = 'label_map.pbtxt'
 
@@ -39,7 +41,7 @@ detection_model = model_builder.build(model_config=configs['model'], is_training
 
 # Restore checkpoint
 ckpt = tf.compat.v2.train.Checkpoint(model=detection_model)
-ckpt.restore(os.path.join(paths['CHECKPOINT_PATH'], 'ckpt-3')).expect_partial()
+ckpt.restore(os.path.join(paths['CHECKPOINT_PATH'], 'ckpt-7')).expect_partial()
 
 @tf.function
 def detect_fn(image):
@@ -54,7 +56,8 @@ from matplotlib import pyplot as plt
 
 category_index = label_map_util.create_category_index_from_labelmap(files['LABELMAP'])
 
-IMAGE_PATH = os.path.join(paths['IMAGE_PATH'], 'test', '0ab8b96b-81af-44f8-802d-ebedaca5b142.jpg')
+IMAGE_PATH = os.path.join(paths['IMAGE_PATH'], 'test', '2cca9fbb-bc2b-4f63-94a6-0724cb3fd64e.jpg')
+# IMAGE_PATH = './test_form2.jpg'
 
 img = cv2.imread(IMAGE_PATH)
 image_np = np.array(img)
@@ -80,8 +83,8 @@ viz_utils.visualize_boxes_and_labels_on_image_array(
             detections['detection_scores'],
             category_index,
             use_normalized_coordinates=True,
-            max_boxes_to_draw=15,
-            min_score_thresh=.5,
+            max_boxes_to_draw=5,
+            min_score_thresh=.7,
             agnostic_mode=False)
 
-cv2.imwrite('test_frcnn.jpg', cv2.cvtColor(image_np_with_detections, cv2.COLOR_BGR2RGB))
+cv2.imwrite('test_frcnn_1024.jpg', cv2.cvtColor(image_np_with_detections, cv2.COLOR_BGR2RGB))
