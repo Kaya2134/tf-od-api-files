@@ -1,8 +1,8 @@
 import os
 
-# CUSTOM_MODEL_NAME = 'my_frcnn_resnet50_640'
-# PRETRAINED_MODEL_NAME = 'faster_rcnn_resnet50_v1_640x640_coco17_tpu-8'
-# PRETRAINED_MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/faster_rcnn_resnet50_v1_640x640_coco17_tpu-8.tar.gz'
+CUSTOM_MODEL_NAME = 'my_frcnn_resnet50_640'
+PRETRAINED_MODEL_NAME = 'faster_rcnn_resnet50_v1_640x640_coco17_tpu-8'
+PRETRAINED_MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/faster_rcnn_resnet50_v1_640x640_coco17_tpu-8.tar.gz'
 
 # CUSTOM_MODEL_NAME = 'my_ssd_resnet50_640'
 # PRETRAINED_MODEL_NAME = 'ssd_resnet50_v1_fpn_640x640_coco17_tpu-8'
@@ -12,9 +12,9 @@ import os
 # PRETRAINED_MODEL_NAME = 'faster_rcnn_resnet101_v1_640x640_coco17_tpu-8'
 # PRETRAINED_MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/faster_rcnn_resnet101_v1_640x640_coco17_tpu-8.tar.gz'
 
-CUSTOM_MODEL_NAME = 'my_frcnn_resnet101_1024_10k'
-PRETRAINED_MODEL_NAME = 'faster_rcnn_resnet101_v1_1024x1024_coco17_tpu-8'
-PRETRAINED_MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/faster_rcnn_resnet101_v1_1024x1024_coco17_tpu-8.tar.gz'
+# CUSTOM_MODEL_NAME = 'my_frcnn_resnet101_1024_10k'
+# PRETRAINED_MODEL_NAME = 'faster_rcnn_resnet101_v1_1024x1024_coco17_tpu-8'
+# PRETRAINED_MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/faster_rcnn_resnet101_v1_1024x1024_coco17_tpu-8.tar.gz'
 
 
 
@@ -58,21 +58,23 @@ if os.name =='posix':
 
 
 #Edit avaliable classes here!
-labels = [{'name':'button', 'id':1}, {'name':'input', 'id':2}, {'name':'checkbox', 'id':3}, {'name':'switch', 'id':4}]
+# labels = [{'name':'button', 'id':1}, {'name':'input', 'id':2}, {'name':'checkbox', 'id':3}, {'name':'switch', 'id':4}]
+# labels = [ { 'name': "Background Image", 'id': 1 } , { 'name': "Card", 'id': 2 } , { 'name': "Number Stepper", 'id': 3 } , { 'name': "Drawer", 'id': 4 } , { 'name': "Map View", 'id': 5 } , { 'name': "Text Button", 'id': 6 } , { 'name': "Text", 'id': 7 } ,     { 'name': "Slider", 'id': 8 } , { 'name': "On/Off Switch", 'id': 9 } , { 'name': "Toolbar", 'id': 10 } , { 'name': "Multi-Tab", 'id': 11 } , { 'name': "Radio Button", 'id': 12 } , { 'name': "Button Bar", 'id': 13 } , { 'name': "Bottom Navigation", 'id': 14 } ,{ 'name': "Video", 'id': 15 } , { 'name': "Advertisement", 'id': 16 } , { 'name': "Web View", 'id': 17 } , { 'name': "Input", 'id': 18 } , { 'name': "Pager Indicator", 'id': 19 } , { 'name': "Icon", 'id': 20 } , { 'name': "Checkbox", 'id': 21 } , { 'name': "Date Picker", 'id': 22 } , { 'name': "Modal", 'id': 23 } , { 'name': "List Item", 'id': 24 } , { 'name': "Image", 'id': 25 } ]
 
-with open(files['LABELMAP'], 'w') as f:
-    for label in labels:
-        f.write('item { \n')
-        f.write('\tname:\'{}\'\n'.format(label['name']))
-        f.write('\tid:{}\n'.format(label['id']))
-        f.write('}\n')
+
+# with open(files['LABELMAP'], 'w') as f:
+#     for label in labels:
+#         f.write('item { \n')
+#         f.write('\tname:\'{}\'\n'.format(label['name']))
+#         f.write('\tid:{}\n'.format(label['id']))
+#         f.write('}\n')
 
 os.system(f"python {files['TF_RECORD_SCRIPT']} -x {os.path.join(paths['IMAGE_PATH'], 'train')} -l {files['LABELMAP']} -o {os.path.join(paths['ANNOTATION_PATH'], 'train.record')}")
 os.system(f"python {files['TF_RECORD_SCRIPT']} -x {os.path.join(paths['IMAGE_PATH'], 'test')} -l {files['LABELMAP']} -o {os.path.join(paths['ANNOTATION_PATH'], 'test.record')}")
 
-# if not os.path.exists(files['PIPELINE_CONFIG']):
-#     os.system(f"mv ./colab-tensor-req/pipeline.config {paths['CHECKPOINT_PATH']}")
-#     print('Moved config file into model dir')
+if not os.path.exists(files['PIPELINE_CONFIG']):
+    os.system(f"cp {os.path.join(paths['PRETRAINED_MODEL_PATH'], CUSTOM_MODEL_NAME,'pipeline.config')} {paths['CHECKPOINT_PATH']}")
+    print('Copied config file into model dir')
 
 import tensorflow as tf
 from object_detection.utils import config_util

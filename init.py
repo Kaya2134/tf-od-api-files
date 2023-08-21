@@ -42,4 +42,4 @@ if os.name=='posix':
 os.system('apt-get update && apt-get install ffmpeg libsm6 libxext6  -y')
 
 if not os.path.exists('./colab-tensor-req'):
-    os.sytem('git clone https://github.com/Kaya2134/colab-tensor-req')
+    os.system('git clone https://github.com/Kaya2134/colab-tensor-req')
